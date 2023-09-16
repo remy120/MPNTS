@@ -4,35 +4,76 @@ import {
 } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { FIREBASE_AUTH } from "./FirebaseConfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { FIREBASE_AUTH, FIREBASE_DB } from "./FirebaseConfig";
 import { Plane } from "react-native-animated-spinkit";
+import { get, ref } from "firebase/database";
+import React from "react";
+import * as FileSystem from "expo-file-system";
+import { Asset } from "expo-asset";
+import { PermissionsAndroid } from "react-native";
 
-import Login from "./app/screens/Login";
-import List from "./app/screens/List";
-import Details from "./app/screens/Details";
-import SignUp from "./app/screens/SignUp";
-import Profile from "./app/screens/Profile";
-import ProfileGender from "./app/screens/ProfileGender";
+import Login from "./app/Components/Login";
+import List from "./app/Components/List";
+import List2 from "./app/Components/List2";
+import Details from "./app/Components/Details";
+import SignUp from "./app/Components/SignUp";
+import Profile from "./app/Components/Profile";
+import ProfileGender from "./app/Components/ProfileGender";
+import { jsonformatter } from "./assets/data/sample";
 
 const Stack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator();
 const ProfileSetUpStack = createNativeStackNavigator();
 
 function InsideLayout() {
-  return (
-    <InsideStack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <InsideStack.Screen name="List" component={List} />
-      <InsideStack.Screen name="Details" component={Details} />
-    </InsideStack.Navigator>
-  );
+  const userId = FIREBASE_AUTH.currentUser?.uid;
+  const userRef = ref(FIREBASE_DB, "users/" + userId);
+  const [snapshotData, setSnapshotData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        setSnapshotData(snapshot);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (snapshotData != null) {
+    return (
+      <InsideStack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <InsideStack.Screen
+          name="List"
+          component={List2}
+          options={{ headerShown: false }}
+        />
+        <InsideStack.Screen name="Details" component={Details} />
+      </InsideStack.Navigator>
+    );
+  } else if (snapshotData == null) {
+    return (
+      <InsideStack.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <InsideStack.Screen
+          name="ProfileSetUp"
+          component={ProfileSetUpLayout}
+          options={{ headerShown: false }}
+        />
+      </InsideStack.Navigator>
+    );
+  }
 }
 
 function ProfileSetUpLayout() {
@@ -59,7 +100,52 @@ export default function App() {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
       setUser(user);
     });
+
+    const requestPermission = async () => {
+      try {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        ]);
+
+        if (
+          granted["android.permission.WRITE_EXTERNAL_STORAGE"] === "granted" &&
+          granted["android.permission.READ_EXTERNAL_STORAGE"] === "granted"
+        ) {
+          console.log("Permission accepted");
+        } else {
+          console.log("Read storage permission denied");
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    };
+
+    const storeJSON = async (jsonData: any) => {
+      const documentDirectory = FileSystem.documentDirectory + "data.json";
+      try {
+        console.log("Document Directory:", documentDirectory);
+
+        const fileInfo = await FileSystem.getInfoAsync(documentDirectory);
+
+        if (!fileInfo.exists) {
+          const jsonString = JSON.stringify(jsonData);
+
+          // Write the JSON string to the file
+          await FileSystem.writeAsStringAsync(documentDirectory, jsonString);
+          console.log("JSON file copied successfully.");
+        } else {
+          console.log("JSON file already exists. Skipping copy.");
+        }
+      } catch (error) {
+        console.error("Error checking/copying JSON file:", error);
+      }
+    };
+
+    // requestPermission();
+    storeJSON(jsonformatter);
   }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
@@ -77,7 +163,6 @@ export default function App() {
           />
         )}
         <Stack.Screen name="SignUp" component={SignUp} />
-        <Stack.Screen name="ProfileSetUp" component={ProfileSetUpLayout} />
       </Stack.Navigator>
     </NavigationContainer>
   );
