@@ -1,28 +1,19 @@
 import {
-  TextInput,
-  Platform,
   View,
   Text,
   FlatList,
   TouchableOpacity,
-  Alert,
   StyleSheet,
-  ImageBackground,
   Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  StatusBar,
   ScrollView,
-  ActivityIndicator,
-  Button,
 } from "react-native";
 import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
-import { ref, push, getDatabase, set } from "firebase/database";
-import { CalorieCalculator } from "../../static/navigationTypes";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { ref, set } from "firebase/database";
+import Colors from "../../assets/colors";
+import { Headline } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
 
 interface RouterProps {
   route: {
@@ -38,7 +29,7 @@ interface RouterProps {
   };
 }
 
-const Profile = ({ route }: any) => {
+const Allergen = ({ route }: any) => {
   const { calorieCalculator } = route.params;
   const navigation = useNavigation();
 
@@ -122,7 +113,7 @@ const Profile = ({ route }: any) => {
         allergen: filteredData,
       });
 
-      navigation.navigate("Inside" as never);
+      navigation.navigate("Main" as never);
     } else {
       // Handle the case when the user is not authenticated
       console.log("User not authenticated");
@@ -131,16 +122,51 @@ const Profile = ({ route }: any) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
-        <Text style={styles.title}>Let's get to know you</Text>
-        <Text style={styles.desc}>
-          Select if you have any of these allergies.
-        </Text>
-        <FlatList
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.innerContainer}>
+          <Text style={styles.title}>Let's get to know you</Text>
+          <Text style={styles.desc}>
+            Select if you have any of these allergies.
+          </Text>
+          {/* <FlatList
           data={data}
           renderItem={({ item, index }) => {
-            return (
-              <TouchableOpacity
+            return ( */}
+          <View style={styles.allergenView}>
+            <View style={styles.allergenBtn}>
+              {data.map((item, index) => (
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    {
+                      borderColor:
+                        item.state == true
+                          ? Colors.purpleSelectedDark
+                          : Colors.pink2,
+                    },
+                  ]}
+                  key={index}
+                  onPress={() => {
+                    onSelect(index);
+                  }}
+                >
+                  <Image style={styles.allergyIcon} source={item.img} />
+                  <Text style={styles.iconText}>{item.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={styles.descBtnText}>
+              Generate personalized meal plan if you're ready
+            </Text>
+            <TouchableOpacity style={styles.generateMealBtn} onPress={submit}>
+              <Text style={styles.btnText}>GENERATE</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* <TouchableOpacity
                 style={[
                   styles.button,
                   {
@@ -153,74 +179,90 @@ const Profile = ({ route }: any) => {
               >
                 <Image style={styles.allergyIcon} source={item.img} />
                 <Text style={styles.iconText}>{item.name}</Text>
-              </TouchableOpacity>
-            );
+              </TouchableOpacity> */}
+          {/* );
           }}
-        />
-        <TouchableOpacity
-          style={[
-            styles.button,
-            {
-              backgroundColor: "#f6e2ff",
-            },
-          ]}
-          onPress={submit}
-        >
-          <Text style={styles.iconText}>Next</Text>
-        </TouchableOpacity>
+        /> */}
+        </View>
       </ScrollView>
     </View>
   );
 };
 
-export default Profile;
+export default Allergen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#abdbe3",
-    justifyContent: "center",
+    backgroundColor: Colors.white,
   },
-  input: {
-    marginVertical: 4,
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 4,
-    padding: 10,
-    backgroundColor: "#fff",
+  innerContainer: {
+    marginTop: 70,
+    alignSelf: "center",
   },
   title: {
-    fontFamily: "",
+    fontSize: 35,
+    textAlign: "center",
     fontWeight: "bold",
-    fontSize: 26,
-    lineHeight: 30,
   },
   desc: {
-    fontFamily: "",
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 14,
     paddingTop: 5,
     paddingBottom: 40,
+    textAlign: "center",
   },
-  iconRow: { flexDirection: "row", alignItems: "center" },
-  button: {
-    width: 150,
-    height: 180,
+  allergenView: {
+    borderTopLeftRadius: 50,
+    borderTopRightRadius: 50,
+    backgroundColor: Colors.purpleDark,
+    width: "100%",
     paddingTop: 20,
+  },
+  allergenBtn: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  button: {
+    backgroundColor: Colors.white,
+    width: 150,
+    height: 150,
+    paddingTop: 15,
+    marginHorizontal: 20,
     flexDirection: "column",
     alignItems: "center",
-    borderRadius: 50,
-    borderColor: "#00000",
-    marginBottom: 10,
-    borderWidth: 1,
+    borderRadius: 100,
+    marginBottom: 20,
+    elevation: 15,
+    borderWidth: 10,
+    borderColor: Colors.pink2,
   },
   allergyIcon: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
   },
   iconText: {
-    paddingTop: 10,
-    fontFamily: "",
+    fontSize: 18,
+  },
+  descBtnText: {
+    fontSize: 15,
+    alignSelf: "center",
+    color: Colors.white,
+    marginTop: 20,
+  },
+  generateMealBtn: {
+    marginTop: 5,
+    marginBottom: 60,
+    alignSelf: "center",
+    backgroundColor: Colors.purpleSelectedDark,
+    borderRadius: 50,
+    paddingVertical: 12,
+    paddingHorizontal: 50,
+    elevation: 5,
+  },
+  btnText: {
     fontSize: 20,
+    fontWeight: "bold",
+    color: Colors.white,
   },
 });

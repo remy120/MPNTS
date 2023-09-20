@@ -1,97 +1,88 @@
-import {
-  NavigationContainer,
-  findFocusedRoute,
-} from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
-import { FIREBASE_AUTH, FIREBASE_DB } from "./FirebaseConfig";
-import { Plane } from "react-native-animated-spinkit";
-import { get, ref } from "firebase/database";
+import { FIREBASE_AUTH } from "./FirebaseConfig";
 import React from "react";
 import * as FileSystem from "expo-file-system";
-import { Asset } from "expo-asset";
 import { PermissionsAndroid } from "react-native";
 
-import Login from "./app/Components/Login";
-import List from "./app/Components/List";
-import List2 from "./app/Components/List2";
-import Details from "./app/Components/Details";
-import SignUp from "./app/Components/SignUp";
-import Profile from "./app/Components/Profile";
-import ProfileGender from "./app/Components/ProfileGender";
+import BeforeLogged from "./app/Components/BeforeLogged";
+import LoggedDecision from "./app/Components/LoggedDecision";
+
 import { jsonformatter } from "./assets/data/sample";
 
 const Stack = createNativeStackNavigator();
-const InsideStack = createNativeStackNavigator();
-const ProfileSetUpStack = createNativeStackNavigator();
+// const InsideStack = createNativeStackNavigator();
+// const ProfileSetUpStack = createNativeStackNavigator();
 
-function InsideLayout() {
-  const userId = FIREBASE_AUTH.currentUser?.uid;
-  const userRef = ref(FIREBASE_DB, "users/" + userId);
-  const [snapshotData, setSnapshotData] = useState<any>(null);
+// function InsideLayout() {
+//   const userId = FIREBASE_AUTH.currentUser?.uid;
+//   const userRef = ref(FIREBASE_DB, "users/" + userId);
+//   const [snapshotData, setSnapshotData] = useState<any>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        setSnapshotData(snapshot);
-      }
-    };
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       const snapshot = await get(userRef);
+//       if (snapshot.exists()) {
+//         setSnapshotData(snapshot);
+//       }
+//     };
 
-    fetchData();
-  }, []);
+//     fetchData();
+//   }, []);
 
-  if (snapshotData != null) {
-    return (
-      <InsideStack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <InsideStack.Screen
-          name="List"
-          component={List2}
-          options={{ headerShown: false }}
-        />
-        <InsideStack.Screen name="Details" component={Details} />
-      </InsideStack.Navigator>
-    );
-  } else if (snapshotData == null) {
-    return (
-      <InsideStack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <InsideStack.Screen
-          name="ProfileSetUp"
-          component={ProfileSetUpLayout}
-          options={{ headerShown: false }}
-        />
-      </InsideStack.Navigator>
-    );
-  }
-}
+//   if (snapshotData != null) {
+//     return (
+//       <InsideStack.Navigator
+//         screenOptions={{
+//           headerShown: false,
+//         }}
+//       >
+//         <InsideStack.Screen
+//           name="List"
+//           component={List2}
+//           options={{ headerShown: false }}
+//         />
+//         <InsideStack.Screen
+//           name="MealPlanDetails"
+//           component={MealPlanDetails}
+//         />
+//       </InsideStack.Navigator>
+//     );
+//   } else if (snapshotData == null) {
+//     return (
+//       <InsideStack.Navigator
+//         screenOptions={{
+//           headerShown: false,
+//         }}
+//       >
+//         <InsideStack.Screen
+//           name="ProfileSetUp"
+//           component={ProfileSetUpLayout}
+//           options={{ headerShown: false }}
+//         />
+//       </InsideStack.Navigator>
+//     );
+//   }
+// }
 
-function ProfileSetUpLayout() {
-  return (
-    <ProfileSetUpStack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <ProfileSetUpStack.Screen
-        name="ProfileGender"
-        component={ProfileGender}
-      />
-      <ProfileSetUpStack.Screen name="Profile" component={Profile} />
-      <ProfileSetUpStack.Screen name="Inside" component={InsideLayout} />
-    </ProfileSetUpStack.Navigator>
-  );
-}
+// function ProfileSetUpLayout() {
+//   return (
+//     <ProfileSetUpStack.Navigator
+//       screenOptions={{
+//         headerShown: false,
+//       }}
+//     >
+//       <ProfileSetUpStack.Screen
+//         name="ProfileGender"
+//         component={ProfileGender}
+//       />
+//       <ProfileSetUpStack.Screen name="Profile" component={Profile} />
+//       <ProfileSetUpStack.Screen name="Main" component={Main} />
+//     </ProfileSetUpStack.Navigator>
+//   );
+// }
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -151,18 +142,17 @@ export default function App() {
       <Stack.Navigator initialRouteName="Login">
         {user ? (
           <Stack.Screen
-            name="Inside"
-            component={InsideLayout}
+            name="LoggedDecision"
+            component={LoggedDecision}
             options={{ headerShown: false }}
           />
         ) : (
           <Stack.Screen
-            name="Login"
-            component={Login}
+            name="BeforeLogged"
+            component={BeforeLogged}
             options={{ headerShown: false }}
           />
         )}
-        <Stack.Screen name="SignUp" component={SignUp} />
       </Stack.Navigator>
     </NavigationContainer>
   );

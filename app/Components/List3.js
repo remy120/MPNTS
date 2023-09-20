@@ -12,8 +12,10 @@ import { get, ref, update } from "firebase/database";
 import Spinner from "react-native-loading-spinner-overlay";
 import * as FileSystem from "expo-file-system";
 import { useFocusEffect } from "@react-navigation/native";
+import { connectAuthEmulator } from "firebase/auth";
+import Colors from "../../assets/colors";
 
-export default function List2({ navigation }) {
+export default function List3({ navigation }) {
   //dump
   const [count, setCount] = useState(0);
 
@@ -27,6 +29,12 @@ export default function List2({ navigation }) {
   const [tempData, setTempData] = useState([]);
   const [FTempData, setfTempData] = useState([]);
   const [randomData, setRandomData] = useState([]);
+  let ttData;
+
+  //current mealPlan nutrition info
+  const [caloriesData, setCaloriesData] = useState([]);
+  const [proteinData, setProteinData] = useState([]);
+  const [fatData, setFatData] = useState([]);
 
   //loading
   const [isLoading, setLoading] = useState(false);
@@ -42,7 +50,7 @@ export default function List2({ navigation }) {
 
     const numRegenerateRandomizedMeals =
       mealPlanData.length === 0 ? 0 : mealPlanData.length; // Get the count of objects in randomData
-    // console.log("numRandomizedMeals", numRegenerateRandomizedMeals);
+    console.log("numRandomizedMeals", numRegenerateRandomizedMeals);
 
     const updates = {};
     updates["/users/" + UID + "/mealPlan/" + numRegenerateRandomizedMeals] =
@@ -79,6 +87,7 @@ export default function List2({ navigation }) {
         var breakfastRecipes = [];
         var lunchRecipes = [];
         var dinnerRecipes = [];
+
         if (allergenData != "") {
           const changeAllergenName = allergenData.map((innerArray) =>
             innerArray.map((category) =>
@@ -97,29 +106,6 @@ export default function List2({ navigation }) {
                 : "Vegetarian"
             )
           );
-
-          // const changeAllergenName = allergenData.map((innerArray) =>
-          //   innerArray.map((category) => {
-          //     switch (category) {
-          //       case "wheat":
-          //         return "Wheat/Gluten-Free";
-          //       case "seafood":
-          //         return "Seafood";
-          //       case "dairy":
-          //         return "Dairy Free";
-          //       case "egg":
-          //         return "Egg";
-          //       case "soy":
-          //         return "Soy Free";
-          //       case "peanut":
-          //         return "Peanut Free";
-          //       case "vegetarian":
-          //         return "Vegetarian";
-          //       default:
-          //         return "";
-          //     }
-          //   })
-          // );
 
           const WOSeafood = changeAllergenName
             .flat()
@@ -167,8 +153,6 @@ export default function List2({ navigation }) {
             });
           }
 
-          console.log("the amount of filtered", tempData.flat().length);
-
           const Seafood = [
             "Seafood",
             "Shellfish",
@@ -183,12 +167,15 @@ export default function List2({ navigation }) {
             "Mussel",
             "Octopus",
           ];
+
+          console.log("the amount of filtered", tempData.flat().length);
           const SeafoodAndEgg = [...Seafood, "Egg"];
+
           console.log("egg and seafood", WEggAndSeafood.flat().length);
           console.log("egg only", WEgg.flat().length);
           console.log("seafood only", WSeafood.flat().length);
 
-          const ttData = tempData.filter((recipe) => {
+          ttData = tempData.filter((recipe) => {
             const { categories } = recipe;
             if (categories) {
               if (WEggAndSeafood.flat().length > 0) {
@@ -209,9 +196,7 @@ export default function List2({ navigation }) {
               }
             }
           });
-          console.log("ttdt", ttData.flat().length);
 
-          //i deleted the .flat() here "!SeafoodAndEgg.flat().some((category) => categories == category)"
           tempData.flat().forEach((recipe) => {
             const { categories } = recipe;
             if (categories) {
@@ -232,49 +217,167 @@ export default function List2({ navigation }) {
               }
             }
           });
-
-          console.log("the amount of filtered again", FTempData.flat().length);
-          console.log("~mealPlanRandomizer--------WAllergen");
-
-          // Filter recipes from recipe based on breakfast/lunch/dinner
-          if (ttData.flat().length > 0) {
-            breakfastRecipes = ttData.filter((recipe) =>
-              recipe.categories.includes("Breakfast")
-            );
-            lunchRecipes = ttData.filter((recipe) =>
-              recipe.categories.includes("Lunch")
-            );
-            dinnerRecipes = ttData.filter((recipe) =>
-              recipe.categories.includes("Dinner")
-            );
-          } else {
-            breakfastRecipes = tempData.filter((recipe) =>
-              recipe.categories.includes("Breakfast")
-            );
-            lunchRecipes = tempData.filter((recipe) =>
-              recipe.categories.includes("Lunch")
-            );
-            dinnerRecipes = tempData.filter((recipe) =>
-              recipe.categories.includes("Dinner")
-            );
-          }
         } else {
-          //new code ends
+          recipeDetails.flat().forEach((recipe) => {
+            const { categories } = recipe;
+            tempData.push(recipe);
+          });
 
-          console.log("~mealPlanRandomizer------------WOAllergen");
-          console.log("recipeDetails.length", recipeDetails.length);
+          ttData = tempData.filter((recipe) => {
+            const { categories } = recipe;
+            if (categories) {
+              return categories;
+            }
+          });
 
-          // // Filter recipes from recipe based on breakfast/lunch/dinner
-          breakfastRecipes = recipeDetails
-            .flat()
-            .filter((recipe) => recipe.categories.includes("Breakfast"));
-          lunchRecipes = recipeDetails
-            .flat()
-            .filter((recipe) => recipe.categories.includes("Lunch"));
-          dinnerRecipes = recipeDetails
-            .flat()
-            .filter((recipe) => recipe.categories.includes("Dinner"));
+          tempData.flat().forEach((recipe) => {
+            const { categories } = recipe;
+            if (categories) {
+              FTempData.push(recipe);
+            }
+          });
         }
+
+        // const Seafood = [
+        //   "Seafood",
+        //   "Shellfish",
+        //   "Shrimp",
+        //   "Fish",
+        //   "Salmon",
+        //   "Scallop",
+        //   "Cod",
+        //   "Bass",
+        //   "Lobster",
+        //   "Halibut",
+        //   "Mussel",
+        //   "Octopus",
+        // ];
+
+        // const SeafoodAndEgg = [...Seafood, "Egg"];
+
+        // if (allergenData != "") {
+        // const Seafood = [
+        //   "Seafood",
+        //   "Shellfish",
+        //   "Shrimp",
+        //   "Fish",
+        //   "Salmon",
+        //   "Scallop",
+        //   "Cod",
+        //   "Bass",
+        //   "Lobster",
+        //   "Halibut",
+        //   "Mussel",
+        //   "Octopus",
+        // ];
+
+        // console.log("egg and seafood", WEggAndSeafood.flat().length);
+        // console.log("egg only", WEgg.flat().length);
+        // console.log("seafood only", WSeafood.flat().length);
+
+        // ttData = tempData.filter((recipe) => {
+        //   const { categories } = recipe;
+        //   if (categories) {
+        //     if (WEggAndSeafood.flat().length > 0) {
+        //       // Check if any of the categories match the ones in SeafoodAndEgg
+        //       return !SeafoodAndEgg.some((category) =>
+        //         categories.includes(category)
+        //       );
+        //     }
+        //     if (WSeafood.flat().length > 0) {
+        //       // Check if any of the categories match the ones in SeafoodAndEgg
+        //       return !Seafood.some((category) =>
+        //         categories.includes(category)
+        //       );
+        //     }
+        //     if (WEgg.flat().length > 0) {
+        //       // Check if any of the categories match the ones in SeafoodAndEgg
+        //       return !Seafood.some(() => categories.includes("Egg"));
+        //     }
+        //   }
+        // });
+        // } else {
+        //   ttData = tempData.filter((recipe) => {
+        //     const { categories } = recipe;
+        //     if (categories) {
+        //       return categories;
+        //     }
+        //   });
+        // }
+
+        //i deleted the .flat() here "!SeafoodAndEgg.flat().some((category) => categories == category)"
+        // if (allergenData != "") {
+        // tempData.flat().forEach((recipe) => {
+        //   const { categories } = recipe;
+        //   if (categories) {
+        //     if (WEggAndSeafood.flat().length > 0) {
+        //       if (!SeafoodAndEgg.some((category) => categories == category)) {
+        //         FTempData.push(recipe);
+        //       }
+        //     }
+        //     if (WSeafood.flat().length > 0) {
+        //       if (!Seafood.some((category) => categories == category)) {
+        //         FTempData.push(recipe);
+        //       }
+        //     }
+        //     if (WEgg.flat().length > 0) {
+        //       if (categories != "Egg") {
+        //         FTempData.push(recipe);
+        //       }
+        //     }
+        //   }
+        // });
+        // } else {
+        //   tempData.flat().forEach((recipe) => {
+        //     const { categories } = recipe;
+        //     if (categories) {
+        //       FTempData.push(recipe);
+        //     }
+        //   });
+        // }
+
+        console.log("the amount of filtered again", FTempData.flat().length);
+        console.log("~mealPlanRandomizer--------WAllergen");
+
+        // Filter recipes from recipe based on breakfast/lunch/dinner
+        if (ttData.flat().length > 0) {
+          breakfastRecipes = ttData.filter((recipe) =>
+            recipe.categories.includes("Breakfast")
+          );
+          lunchRecipes = ttData.filter((recipe) =>
+            recipe.categories.includes("Lunch")
+          );
+          dinnerRecipes = ttData.filter((recipe) =>
+            recipe.categories.includes("Dinner")
+          );
+        } else {
+          breakfastRecipes = tempData.filter((recipe) =>
+            recipe.categories.includes("Breakfast")
+          );
+          lunchRecipes = tempData.filter((recipe) =>
+            recipe.categories.includes("Lunch")
+          );
+          dinnerRecipes = tempData.filter((recipe) =>
+            recipe.categories.includes("Dinner")
+          );
+        }
+        // } else {
+        //   //new code ends
+
+        //   console.log("~mealPlanRandomizer------------WOAllergen");
+        //   console.log("recipeDetails.length", recipeDetails.length);
+
+        //   // // Filter recipes from recipe based on breakfast/lunch/dinner
+        //   breakfastRecipes = recipeDetails.filter((recipe) =>
+        //     recipe.categories.includes("Breakfast")
+        //   );
+        //   lunchRecipes = recipeDetails.filter((recipe) =>
+        //     recipe.categories.includes("Lunch")
+        //   );
+        //   dinnerRecipes = recipeDetails.filter((recipe) =>
+        //     recipe.categories.includes("Dinner")
+        //   );
+        // }
 
         console.log("breakfastRecipes", breakfastRecipes.length);
         console.log("lunchRecipes", lunchRecipes.length);
@@ -308,6 +411,7 @@ export default function List2({ navigation }) {
 
           BR.flat().forEach((recipe) => {
             const { calories } = recipe;
+
             if (calories != null) {
               console.log("b", calories);
               totalC = totalC + calories;
@@ -384,6 +488,8 @@ export default function List2({ navigation }) {
     navigation.navigate("MealPlanDetails", { mealPlanItem });
   };
 
+  const firstUpdate = useRef(true);
+
   useEffect(() => {
     const fetchRecipeData = async () => {
       console.log("~fetchRecipeData");
@@ -407,6 +513,7 @@ export default function List2({ navigation }) {
     };
 
     const setData = () => {
+      console.log("setting data");
       setAllergenData(
         userDetails.map((userDetail) =>
           userDetail.allergen
@@ -417,7 +524,24 @@ export default function List2({ navigation }) {
 
       userDetails.map((userDetail) => {
         if (userDetail.mealPlan) {
+          let totalCalories = 0;
+          let totalProtein = 0;
+          let totalFat = 0;
+
+          const latestMealPlan =
+            userDetail.mealPlan[userDetail.mealPlan.length - 1];
+          for (const meal of latestMealPlan) {
+            totalCalories += meal.calories;
+            totalProtein += meal.protein;
+            totalFat += meal.fat;
+          }
+          setCaloriesData(totalCalories);
+          setProteinData(totalProtein);
+          setFatData(totalFat);
           setMealPlanData(userDetail.mealPlan.map((mealPlan) => mealPlan));
+        } else {
+          console.log("no meal plan yet");
+          upload3RandomizedMeal();
         }
       });
     };
@@ -452,7 +576,6 @@ export default function List2({ navigation }) {
         } else {
           setUserDetails([]);
           setLoading(false);
-          console.log("gg.com");
         }
       }
     };
@@ -461,161 +584,103 @@ export default function List2({ navigation }) {
   }, [count]);
 
   useEffect(() => {
-    console.log("there is changes in user meal plan");
-    if (userDetails.length != 0) {
-      if (mealPlanData.length === 0) {
-        console.log("no meal plan yet");
-        upload3RandomizedMeal();
-      } else {
-        console.log("already have meal plan");
+    const checkMealPlan = () => {
+      console.log("there is changes in user meal plan");
+      if (userDetails.length != 0) {
+        if (mealPlanData.length === 0) {
+          console.log("no meal plan yet");
+          upload3RandomizedMeal();
+        } else {
+          console.log("already have meal plan");
+        }
       }
+    };
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
     }
+    checkMealPlan();
   }, [mealPlanData]);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setLoading(true);
-
-  //     // Fetch user data
-  //     const user = FIREBASE_AUTH.currentUser;
-  //     setUID(user.uid);
-  //     console.log("-----GETTING USER-----");
-
-  //     if (user) {
-  //       const userRef = ref(FIREBASE_DB, "users/" + user.uid);
-  //       const snapshot = await get(userRef);
-
-  //       if (snapshot.exists()) {
-  //         const UD = [];
-  //         UD.push(snapshot.val());
-  //         console.log("User Details BEFORE", userDetails);
-  //         setUserDetails(UD);
-  //       } else {
-  //         setUserDetails([]);
-  //         console.log("gg.com");
-  //       }
-  //     }
-
-  //     // Fetch recipe data
-  //     const documentDirectory = FileSystem.documentDirectory + "data.json";
-  //     try {
-  //       const fileInfo = await FileSystem.getInfoAsync(documentDirectory);
-  //       if (fileInfo.exists) {
-  //         const jsonContent = await FileSystem.readAsStringAsync(
-  //           documentDirectory
-  //         );
-  //         const parsedData = JSON.parse(jsonContent);
-  //         setRecipeDetails([parsedData]); // Update recipeDetails state
-  //       } else {
-  //         console.log("JSON file does not exist.");
-  //         // Handle the case when the file doesn't exist
-  //       }
-  //     } catch (error) {
-  //       console.error("Error reading JSON file:", error);
-  //       // Handle errors when reading the JSON file
-  //     }
-
-  //     setLoading(false);
-  //   };
-
-  //   // Check for changes in userDetails and mealPlanData
-  //   if (userDetails.length !== 0) {
-  //     console.log("userdetails changed");
-  //     console.log("UserDetails", userDetails);
-  //     // Call the function to set allergen and mealPlan data
-  //     setData();
-  //   }
-
-  //   // Function to set allergen and mealPlan data
-  //   const setData = async () => {
-  //     setAllergenData(
-  //       userDetails.map((userDetail) =>
-  //         userDetail.allergen
-  //           ? userDetail.allergen.map((allergen) => allergen.name)
-  //           : ""
-  //       )
-  //     );
-
-  //     userDetails.forEach((userDetail) => {
-  //       if (userDetail.mealPlan) {
-  //         setMealPlanData(userDetail.mealPlan.map((mealPlan) => mealPlan));
-  //       }
-  //     });
-  //   };
-
-  //   // Check for changes in mealPlanData
-  //   useEffect(() => {
-  //     console.log("there is changes in user meal plan");
-  //     if (userDetails.length !== 0) {
-  //       if (mealPlanData.length === 0) {
-  //         console.log("no meal plan yet");
-  //         upload3RandomizedMeal();
-  //       } else {
-  //         console.log("already have meal plan");
-  //       }
-  //     }
-  //   }, [mealPlanData]);
-
-  //   // Initial data fetching and setup
-  //   fetchData();
-  // }, [count, userDetails, mealPlanData]);
-
   return (
-    <ScrollView
-      style={{
-        flex: 1,
-        backgroundColor: "#f0f0f0",
-        padding: 20,
-        marginTop: 50,
-      }}
-    >
-      {userDetails.length > 0 && (
-        <View>
-          <Text>YES</Text>
-        </View>
-      )}
+    <View style={styles.container}>
+      <ScrollView
+        style={{
+          flex: 1,
+          backgroundColor: Colors.white,
+          padding: 20,
+          marginTop: 50,
+        }}
+      >
+        {userDetails.length > 0 &&
+          userDetails.map((userDetail, userIndex) => (
+            <View key={userIndex}>
+              <Text>Name: {userDetail.user.name}</Text>
+              <Text>Age: {userDetail.user.age}</Text>
+              <Text>
+                Gender: {userDetail.user.gender === "male" ? "Male" : "Female"}
+              </Text>
+              <Text>Recommended Daily Intake</Text>
+              <Text>
+                Calorie Requirement: {userDetail.user.totalCalories} kcal/day
+              </Text>
+              <Text>
+                Carbohydrates: {userDetail.user.carbMin} -{" "}
+                {userDetail.user.carbMax} grams
+              </Text>
+              <Text>Fiber: {userDetail.user.fiber} grams</Text>
+              <Text>
+                Protein: {userDetail.user.proteinMin} -{" "}
+                {userDetail.user.proteinMax} grams
+              </Text>
+              <Text>
+                Fat: {userDetail.user.fatMin} - {userDetail.user.fatMax} grams
+              </Text>
+              <Text>Water: {userDetail.user.water / 1000} liters</Text>
 
-      {userDetails.length > 0 &&
-        userDetails.map((userDetail, userIndex) => (
-          <View key={userIndex}>
-            <Text>Age: {userDetail.user.age}</Text>
-            <Text>Gender: {userDetail.user.gender}</Text>
-            <Text>Meal Plan:</Text>
-            {mealPlanData.length > 0 &&
-              mealPlanData[mealPlanData.length - 1].map(
-                (mealPlanItem, mealPlanIndex) => (
-                  <View key={mealPlanIndex}>
-                    <TouchableOpacity
-                      style={[styles.button]}
-                      onPress={() => {
-                        onSelect(mealPlanItem);
-                      }}
-                    >
-                      <Text style={styles.iconText}>{mealPlanItem.title}</Text>
-                    </TouchableOpacity>
-                  </View>
-                )
-              )}
-          </View>
-        ))}
+              <Text>Meal Plan:</Text>
+              <Text>Total Calories: {caloriesData}</Text>
+              <Text>Total Protein: {proteinData}</Text>
+              <Text>Total Fat: {fatData}</Text>
+              {mealPlanData.length > 0 &&
+                mealPlanData[mealPlanData.length - 1].map(
+                  (mealPlanItem, mealPlanIndex) => (
+                    <View key={mealPlanIndex}>
+                      <TouchableOpacity
+                        style={[styles.button]}
+                        onPress={() => {
+                          onSelect(mealPlanItem);
+                        }}
+                      >
+                        <Text style={styles.iconText}>
+                          {mealPlanItem.title}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )
+                )}
+            </View>
+          ))}
 
-      <Button onPress={() => FIREBASE_AUTH.signOut()} title="Logout" />
-      <Button onPress={Regenerate} title="Regenerate" />
-      <Spinner
-        visible={isLoading}
-        textContent={"Loading..."}
-        textStyle={{ color: "#FFF" }}
-        size={100}
-      ></Spinner>
-    </ScrollView>
+        <Button onPress={() => FIREBASE_AUTH.signOut()} title="Logout" />
+        <Button onPress={Regenerate} title="Dice" />
+        <Spinner
+          visible={isLoading}
+          textContent={"Loading..."}
+          textStyle={{ color: "#FFF" }}
+          size={100}
+        ></Spinner>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#abdbe3",
     justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.white,
   },
   input: {
     marginVertical: 4,
