@@ -85,7 +85,7 @@ const SignUp = ({ navigation }: any) => {
           <TextInput
             label="Email"
             returnKeyType="next"
-            value={email}
+            value={email.value}
             onChangeText={(text: string) =>
               setEmail((prevEmail) => ({ ...prevEmail, value: text }))
             }
@@ -101,7 +101,7 @@ const SignUp = ({ navigation }: any) => {
           <TextInput
             label="Password"
             returnKeyType="next"
-            value={password}
+            value={password.value}
             onChangeText={(text: string) =>
               setPassword((prevPassword) => ({
                 ...prevPassword,

@@ -195,7 +195,7 @@ export default function MealPlanDetails({ route, navigation }) {
 
           <View style={styles.categories}>
             {mealPlanItem.categories.map((item, index) => (
-              <Text style={styles.categoriesText}>
+              <Text style={styles.categoriesText} key={index}>
                 {"\u2022"} {item.toUpperCase()}
                 {"  "}
               </Text>
@@ -208,13 +208,13 @@ export default function MealPlanDetails({ route, navigation }) {
           </Text>
           <Text style={styles.nutritionalInfo}>Ingredients</Text>
           {mealPlanItem.ingredients.map((item, index) => (
-            <Text style={styles.ingredients}>
+            <Text style={styles.ingredients} key={index}>
               {"\u2022"} {item}
             </Text>
           ))}
           <Text style={styles.directions}>Directions:</Text>
           {mealPlanItem.directions.map((item, index) => (
-            <Text style={styles.directions}>
+            <Text style={styles.directions} key={index}>
               {index + 1}. {item}
             </Text>
           ))}
