@@ -4,6 +4,7 @@ import {
   FlatList,
   StyleSheet,
   Button,
+  Image,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
@@ -15,6 +16,7 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { Ionicons } from "@expo/vector-icons";
 import { FeedbackValidator } from "../../static/FeedbackValidator";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function MealPlanDetails({ route, navigation }) {
   const { mealPlanItem } = route.params;
@@ -147,17 +149,59 @@ export default function MealPlanDetails({ route, navigation }) {
   };
 
   const bookmarkStyle = {
-    backgroundColor: bookmark ? "yellow" : "transparent",
-    borderRadius: 50,
-    padding: 10,
+    backgroundColor: bookmark ? Colors.orangeDark : Colors.white,
+    borderRadius: 15,
+    padding: 15,
+    position: "absolute",
+    right: 30,
+    marginTop: -30,
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView
+        style={{
+          flex: 1,
+        }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons
+            name={"chevron-back-outline"}
+            size={35}
+            color={Colors.lightGrey}
+          />
+        </TouchableOpacity>
+
+        <Image
+          style={styles.img}
+          source={require("../../assets/img/food-1.png")}
+        />
+
         <View style={styles.mealDetails}>
+          <TouchableOpacity onPress={save} style={bookmarkStyle}>
+            <Ionicons
+              name={bookmark ? "bookmark" : "bookmark-outline"}
+              size={25}
+              color={bookmark ? "black" : "grey"}
+            />
+          </TouchableOpacity>
           <Text style={styles.mealTitle}>{mealPlanItem.title}</Text>
           <Text style={styles.description}>{mealPlanItem.desc}</Text>
+
+          <View style={styles.categories}>
+            {mealPlanItem.categories.map((item, index) => (
+              <Text style={styles.categoriesText}>
+                {"\u2022"} {item.toUpperCase()}
+                {"  "}
+              </Text>
+            ))}
+          </View>
+
           <Text style={styles.nutritionalInfo}>
             Calories: {mealPlanItem.calories} | Protein: {mealPlanItem.protein}g
             | Fat: {mealPlanItem.fat}g | Sodium: {mealPlanItem.sodium}mg
@@ -175,13 +219,6 @@ export default function MealPlanDetails({ route, navigation }) {
             </Text>
           ))}
         </View>
-        <TouchableOpacity onPress={save} style={bookmarkStyle}>
-          <Ionicons
-            name={bookmark ? "bookmark" : "bookmark-outline"}
-            size={30}
-            color={bookmark ? "black" : "grey"}
-          />
-        </TouchableOpacity>
         <Button
           title="Go Back"
           onPress={() => navigation.goBack()}
@@ -203,9 +240,13 @@ export default function MealPlanDetails({ route, navigation }) {
         </View>
 
         <TouchableOpacity onPress={submit} style={styles.submitBtn}>
-          <Ionicons name={"enter-outline"} size={30} color={"grey"} />
+          <Ionicons name={"enter-outline"} size={40} color={"grey"} />
         </TouchableOpacity>
 
+        <LinearGradient
+          colors={[Colors.pink1, Colors.pink2, Colors.pink2Dark]}
+          style={styles.box}
+        ></LinearGradient>
         <Spinner
           visible={isLoading}
           textContent={"Adding..."}
@@ -221,23 +262,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.pink1,
+  },
+  img: {
+    height: 300,
+    width: "100%",
   },
   mealDetails: {
-    padding: 16,
-    marginBottom: 16,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    width: "90%",
+    alignSelf: "center",
+    marginTop: -50,
+    backgroundColor: Colors.white,
+    borderRadius: 25,
   },
   mealTitle: {
     textAlign: "center",
     fontFamily: "",
     fontWeight: "bold",
-    fontSize: 26,
+    fontSize: 24,
     lineHeight: 30,
-    marginTop: 50,
+    marginVertical: 10,
+  },
+  description: {
+    fontSize: 14,
+    color: Colors.lightGrey,
   },
   nutritionalInfo: {
+    marginVertical: 5,
     fontSize: 16,
-    marginBottom: 8,
   },
   ingredients: {
     fontSize: 16,
@@ -248,5 +302,30 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 16,
+  },
+  box: {
+    position: "absolute",
+    bottom: 0,
+    height: 600,
+    width: "100%",
+    zIndex: -99,
+  },
+  backBtn: {
+    position: "absolute",
+    top: 40,
+    marginLeft: 20,
+    padding: 10,
+    backgroundColor: Colors.white,
+    zIndex: 999,
+    borderRadius: 15,
+    elevation: 5,
+  },
+  categories: {
+    marginVertical: 5,
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  categoriesText: {
+    color: Colors.greenCategory,
   },
 });

@@ -49,8 +49,18 @@ const SignUp = ({ navigation }: any) => {
         password.value
       );
     } catch (error: any) {
-      console.log(error);
-      alert("Sign Up failed: " + error.message);
+      console.log(error.message);
+      if (error.message === "Firebase: Error (auth/invalid-email).") {
+        alert("Please enter a valid email address.");
+      } else if (error.message === "Firebase: Error (auth/missing-password).") {
+        alert("Missing password. Please do not leave the password empty.");
+      } else if (
+        error.message === "Firebase: Error (auth/email-already-in-use)."
+      ) {
+        alert("Account existed. Please proceed to login.");
+      } else if (error.message === "Firebase: Error (auth/missing-email).") {
+        alert("Please do not leave the email address empty.");
+      }
     } finally {
       setLoading(false);
     }

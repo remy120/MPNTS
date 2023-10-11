@@ -113,7 +113,7 @@ const Allergen = ({ route }: any) => {
         allergen: filteredData,
       });
 
-      navigation.navigate("Main" as never);
+      navigation.navigate("LoggedWProfile" as never);
     } else {
       // Handle the case when the user is not authenticated
       console.log("User not authenticated");
@@ -165,24 +165,6 @@ const Allergen = ({ route }: any) => {
               <Text style={styles.btnText}>GENERATE</Text>
             </TouchableOpacity>
           </View>
-
-          {/* <TouchableOpacity
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor: item.state == true ? "#f6e2ff" : "#abdbe3",
-                  },
-                ]}
-                onPress={() => {
-                  onSelect(index);
-                }}
-              >
-                <Image style={styles.allergyIcon} source={item.img} />
-                <Text style={styles.iconText}>{item.name}</Text>
-              </TouchableOpacity> */}
-          {/* );
-          }}
-        /> */}
         </View>
       </ScrollView>
     </View>

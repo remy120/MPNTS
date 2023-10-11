@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoggedWOProfile from "./LoggedWOProfile";
-import Main from "./Main";
+import LoggedWProfile from "./LoggedWProfile";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { ref, get } from "firebase/database";
 
@@ -34,7 +34,7 @@ export default function LoggedDeicion() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="Main" component={Main} />
+        <Stack.Screen name="LoggedWProfile" component={LoggedWProfile} />
       </Stack.Navigator>
     );
   } else if (snapshotData == null) {

@@ -44,7 +44,7 @@ export default function StaffHome({ route, navigation }) {
             },
           ]}
         >
-          <Headline>Staff Dashboard</Headline>
+          <Headline>Admin Dashboard</Headline>
           <TouchableOpacity style={styles.itemContainer} onPress={BrowseUsers}>
             <Text>All Users</Text>
           </TouchableOpacity>

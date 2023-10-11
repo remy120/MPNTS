@@ -62,8 +62,16 @@ const Login = ({ navigation }: RouterProps) => {
         password.value
       );
     } catch (error: any) {
-      console.log(error);
-      alert("Sign in failed: " + error.message);
+      console.log(error.message);
+      if (error.message === "Firebase: Error (auth/invalid-email).") {
+        alert("Please enter a valid email address.");
+      } else if (error.message === "Firebase: Error (auth/missing-password).") {
+        alert("Missing password. Please do not leave the password empty.");
+      } else if (error.message === "Firebase: Error (auth/user-not-found).") {
+        alert("User not found. Please register your account.");
+      } else if (error.message === "Firebase: Error (auth/wrong-password).") {
+        alert("Authentication failed.");
+      }
     } finally {
       setLoading(false);
     }
@@ -92,7 +100,7 @@ const Login = ({ navigation }: RouterProps) => {
           <TextInput
             label="Email"
             returnKeyType="next"
-            value={email}
+            value={email.value}
             onChangeText={(text: string) =>
               setEmail((prevEmail) => ({ ...prevEmail, value: text }))
             }
@@ -108,7 +116,7 @@ const Login = ({ navigation }: RouterProps) => {
           <TextInput
             label="Password"
             returnKeyType="next"
-            value={password}
+            value={password.value}
             onChangeText={(text: string) =>
               setPassword((prevPassword) => ({
                 ...prevPassword,

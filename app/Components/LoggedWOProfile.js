@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Allergen from "./Allergen";
 import Gender from "./Gender";
-import Main from "./Main";
+import LoggedWProfile from "./LoggedWProfile";
 
 const Stack = createNativeStackNavigator();
 
@@ -15,7 +15,7 @@ export default function LoggedWOProfile() {
     >
       <Stack.Screen name="Gender" component={Gender} />
       <Stack.Screen name="Allergen" component={Allergen} />
-      <Stack.Screen name="Main" component={Main} />
+      <Stack.Screen name="LoggedWProfile" component={LoggedWProfile} />
     </Stack.Navigator>
   );
 }
