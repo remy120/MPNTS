@@ -62,7 +62,7 @@ export default function LoggedWProfile() {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Bookmark") {
             iconName = focused ? "bookmark" : "bookmark-outline";
-          } else if (route.name === "Profile") {
+          } else if (route.name === "ProfileLayout") {
             iconName = focused ? "person" : "person-outline";
           } else if (route.name === "Detail") {
             iconName = focused ? "receipt" : "receipt-outline";
@@ -98,7 +98,7 @@ export default function LoggedWProfile() {
         options={{ headerShown: false }}
       />
       <Tab.Screen
-        name="Profile"
+        name="ProfileLayout"
         component={ProfileLayout}
         options={{ headerShown: false }}
       />

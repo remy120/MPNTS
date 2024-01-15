@@ -195,37 +195,89 @@ export default function MealPlanDetails({ route, navigation }) {
 
           <View style={styles.categories}>
             {mealPlanItem.categories.map((item, index) => (
-              <Text style={styles.categoriesText}>
+              <Text style={styles.categoriesText} key={index}>
                 {"\u2022"} {item.toUpperCase()}
                 {"  "}
               </Text>
             ))}
           </View>
 
-          <Text style={styles.nutritionalInfo}>
-            Calories: {mealPlanItem.calories} | Protein: {mealPlanItem.protein}g
-            | Fat: {mealPlanItem.fat}g | Sodium: {mealPlanItem.sodium}mg
-          </Text>
+          <View style={styles.nutritionsView}>
+            <View
+              style={[
+                styles.nutritions,
+                {
+                  backgroundColor: Colors.pink2,
+                },
+              ]}
+            >
+              <Text style={styles.nutritionalInfo}>
+                {mealPlanItem.calories}
+              </Text>
+              <Text style={styles.nutritionalLbl}>Calories</Text>
+            </View>
+
+            <View
+              style={[
+                styles.nutritions,
+                {
+                  backgroundColor: Colors.orange1,
+                },
+              ]}
+            >
+              <Text style={styles.nutritionalInfo}>{mealPlanItem.protein}</Text>
+              <Text style={styles.nutritionalLbl}>Protein</Text>
+            </View>
+
+            <View
+              style={[
+                styles.nutritions,
+                {
+                  backgroundColor: Colors.greenLight,
+                },
+              ]}
+            >
+              <Text style={styles.nutritionalInfo}>{mealPlanItem.fat}</Text>
+              <Text style={styles.nutritionalLbl}>Fat</Text>
+            </View>
+
+            <View
+              style={[
+                styles.nutritions,
+                {
+                  backgroundColor: Colors.purpleLight,
+                },
+              ]}
+            >
+              <Text style={styles.nutritionalInfo}>{mealPlanItem.sodium}</Text>
+              <Text style={styles.nutritionalLbl}>Sodium</Text>
+            </View>
+          </View>
+
           <Text style={styles.nutritionalInfo}>Ingredients</Text>
           {mealPlanItem.ingredients.map((item, index) => (
-            <Text style={styles.ingredients}>
+            <Text style={styles.ingredients} key={index}>
               {"\u2022"} {item}
             </Text>
           ))}
-          <Text style={styles.directions}>Directions:</Text>
+          <Text
+            style={[
+              styles.nutritionalInfo,
+              {
+                marginTop: 10,
+              },
+            ]}
+          >
+            Directions
+          </Text>
           {mealPlanItem.directions.map((item, index) => (
-            <Text style={styles.directions}>
+            <Text style={styles.directions} key={index}>
               {index + 1}. {item}
             </Text>
           ))}
         </View>
-        <Button
-          title="Go Back"
-          onPress={() => navigation.goBack()}
-          style={styles.button}
-        />
 
-        <View>
+        <View style={styles.feedbackText}>
           <TextInput
             label="Tell us your feedback"
             returnKeyType="next"
@@ -234,7 +286,7 @@ export default function MealPlanDetails({ route, navigation }) {
               setFeedback((prevFeedback) => ({ ...prevFeedback, value: text }))
             }
             keyboardType="default"
-            description="Feel free to provide feedback to us regarding this recipe"
+            description="Feel free to provide feedback to us regarding this recipe by clicking on the submit button"
             errorText={feedback.error}
           />
         </View>
@@ -327,5 +379,41 @@ const styles = StyleSheet.create({
   },
   categoriesText: {
     color: Colors.greenCategory,
+  },
+  nutritionsView: {
+    flexDirection: "row",
+    marginVertical: 10,
+  },
+  nutritions: {
+    paddingVertical: 20,
+    alignItems: "center",
+    marginHorizontal: 5,
+    width: 75,
+    height: 90,
+    borderRadius: 20,
+  },
+  nutritionalInfo: {
+    color: Colors.black,
+    fontWeight: "bold",
+    fontSize: 24,
+  },
+  nutritionalLbl: {
+    marginTop: 3,
+    color: Colors.lightGrey,
+    fontSize: 10,
+  },
+  feedbackText: {
+    width: "80%",
+    alignSelf: "center",
+  },
+  submitBtn: {
+    backgroundColor: Colors.white,
+    padding: 10,
+    zIndex: 999,
+    borderRadius: 50,
+    elevation: 5,
+    width: 65,
+    alignSelf: "center",
+    marginBottom: 20,
   },
 });

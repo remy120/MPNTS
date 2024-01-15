@@ -1,31 +1,17 @@
 import {
-  Platform,
   View,
   Text,
-  FlatList,
   TouchableOpacity,
-  Alert,
   StyleSheet,
-  ImageBackground,
   Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-  StatusBar,
-  ScrollView,
   ActivityIndicator,
-  Button,
 } from "react-native";
 import React, { useState } from "react";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { NavigationProp, useFocusEffect } from "@react-navigation/native";
 import TextInput from "../../static/TextInput";
 import Colors from "../../assets/colors";
-import { Headline } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 
 interface RouterProps {

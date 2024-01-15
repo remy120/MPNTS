@@ -126,19 +126,6 @@ export default function Bookmark({ route, navigation }) {
               <Text>Start generating your personalized meal plan now!</Text>
             </>
           ) : (
-            // pastMealPlans.map((item, index) => (
-            //   <TouchableOpacity
-            //     style={styles.itemContainer}
-            //     key={index}
-            //     onPress={() => {
-            //       onSelect(item[0]);
-            //     }}
-            //   >
-            //     <View>
-            //     <Text>{dayObject[mealIndex].title}</Text>
-            //   </View>
-            //   </TouchableOpacity>
-            // ))
             pastMealPlans.map((dayObject, dayIndex) => (
               <View key={dayIndex}>
                 <Text>Day {dayIndex + 1}</Text>
