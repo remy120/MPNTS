@@ -21,12 +21,57 @@ import { Ionicons } from "@expo/vector-icons";
 export default function List3({ navigation }) {
   //dump
   const [count, setCount] = useState(0);
+  const [isFocused, setIsFocused] = useState(false);
 
   //general data
   const [userDetails, setUserDetails] = useState([]);
   const [allergenData, setAllergenData] = useState([]);
   const [mealPlanData, setMealPlanData] = useState([]);
   const [recipeDetails, setRecipeDetails] = useState([]);
+
+  const FRD = async () => {
+    console.log("Fetching Recipe Data");
+    try {
+      console.log("AAA");
+      const docDir = FileSystem.documentDirectory + "data.json";
+      console.log("BBB");
+      const fileInfo = await FileSystem.getInfoAsync(docDir);
+      console.log("CCC");
+
+      if (!fileInfo.exists) {
+        console.error("JSON file does not exist.");
+        return null;
+      }
+
+      console.log("DDD");
+
+      const jsonContent = await FileSystem.readAsStringAsync(docDir);
+
+      console.log("EEE");
+
+      if (!jsonContent) {
+        console.log("JSON content is empty.");
+        return null;
+      }
+
+      console.log("FFF");
+
+      const parsedData = JSON.parse(jsonContent);
+
+      console.log("GGG");
+
+      if (Array.isArray(parsedData) && parsedData.length > 0) {
+        console.log("Data fetched successfully.");
+        return parsedData;
+      } else {
+        console.log("No valid data found.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error reading JSON file: ", error);
+      return null;
+    }
+  };
 
   //food filtering data
   const [tempData, setTempData] = useState([]);
@@ -50,8 +95,17 @@ export default function List3({ navigation }) {
     console.log("~Regenerate");
     console.log("mealPlanData.length", mealPlanData.length);
 
-    generateRandomizedMeal();
+    const fetchData = async () => {
+      try {
+        const result = await FRD();
+        setRecipeDetails(result);
 
+        await generateRandomizedMeal();
+      } catch (error) {
+        console.error("Failed to fetch recipe details: ", error);
+      }
+    };
+    fetchData();
     const numRegenerateRandomizedMeals =
       mealPlanData.length === 0 ? 0 : mealPlanData.length; // Get the count of objects in randomData
     console.log("numRandomizedMeals", numRegenerateRandomizedMeals);
@@ -86,8 +140,13 @@ export default function List3({ navigation }) {
 
   const generateRandomizedMeal = () => {
     randomData.length = 0;
+    tempData.length = 0;
     try {
-      if (recipeDetails != null) {
+      if (recipeDetails.flat().length == 0) {
+        FRD.result;
+      }
+      console.log("check check", recipeDetails.flat().length);
+      if (recipeDetails != null && recipeDetails.length > 0) {
         //new code
         console.log("User allergic to", allergenData);
         var breakfastRecipes = [];
@@ -244,104 +303,6 @@ export default function List3({ navigation }) {
           });
         }
 
-        // const Seafood = [
-        //   "Seafood",
-        //   "Shellfish",
-        //   "Shrimp",
-        //   "Fish",
-        //   "Salmon",
-        //   "Scallop",
-        //   "Cod",
-        //   "Bass",
-        //   "Lobster",
-        //   "Halibut",
-        //   "Mussel",
-        //   "Octopus",
-        // ];
-
-        // const SeafoodAndEgg = [...Seafood, "Egg"];
-
-        // if (allergenData != "") {
-        // const Seafood = [
-        //   "Seafood",
-        //   "Shellfish",
-        //   "Shrimp",
-        //   "Fish",
-        //   "Salmon",
-        //   "Scallop",
-        //   "Cod",
-        //   "Bass",
-        //   "Lobster",
-        //   "Halibut",
-        //   "Mussel",
-        //   "Octopus",
-        // ];
-
-        // console.log("egg and seafood", WEggAndSeafood.flat().length);
-        // console.log("egg only", WEgg.flat().length);
-        // console.log("seafood only", WSeafood.flat().length);
-
-        // ttData = tempData.filter((recipe) => {
-        //   const { categories } = recipe;
-        //   if (categories) {
-        //     if (WEggAndSeafood.flat().length > 0) {
-        //       // Check if any of the categories match the ones in SeafoodAndEgg
-        //       return !SeafoodAndEgg.some((category) =>
-        //         categories.includes(category)
-        //       );
-        //     }
-        //     if (WSeafood.flat().length > 0) {
-        //       // Check if any of the categories match the ones in SeafoodAndEgg
-        //       return !Seafood.some((category) =>
-        //         categories.includes(category)
-        //       );
-        //     }
-        //     if (WEgg.flat().length > 0) {
-        //       // Check if any of the categories match the ones in SeafoodAndEgg
-        //       return !Seafood.some(() => categories.includes("Egg"));
-        //     }
-        //   }
-        // });
-        // } else {
-        //   ttData = tempData.filter((recipe) => {
-        //     const { categories } = recipe;
-        //     if (categories) {
-        //       return categories;
-        //     }
-        //   });
-        // }
-
-        //i deleted the .flat() here "!SeafoodAndEgg.flat().some((category) => categories == category)"
-        // if (allergenData != "") {
-        // tempData.flat().forEach((recipe) => {
-        //   const { categories } = recipe;
-        //   if (categories) {
-        //     if (WEggAndSeafood.flat().length > 0) {
-        //       if (!SeafoodAndEgg.some((category) => categories == category)) {
-        //         FTempData.push(recipe);
-        //       }
-        //     }
-        //     if (WSeafood.flat().length > 0) {
-        //       if (!Seafood.some((category) => categories == category)) {
-        //         FTempData.push(recipe);
-        //       }
-        //     }
-        //     if (WEgg.flat().length > 0) {
-        //       if (categories != "Egg") {
-        //         FTempData.push(recipe);
-        //       }
-        //     }
-        //   }
-        // });
-        // } else {
-        //   tempData.flat().forEach((recipe) => {
-        //     const { categories } = recipe;
-        //     if (categories) {
-        //       FTempData.push(recipe);
-        //     }
-        //   });
-        // }
-
         console.log("the amount of filtered again", FTempData.flat().length);
         console.log("~mealPlanRandomizer--------WAllergen");
 
@@ -385,23 +346,6 @@ export default function List3({ navigation }) {
               !recipe.categories.includes("Lunch")
           );
         }
-        // } else {
-        //   //new code ends
-
-        //   console.log("~mealPlanRandomizer------------WOAllergen");
-        //   console.log("recipeDetails.length", recipeDetails.length);
-
-        //   // // Filter recipes from recipe based on breakfast/lunch/dinner
-        //   breakfastRecipes = recipeDetails.filter((recipe) =>
-        //     recipe.categories.includes("Breakfast")
-        //   );
-        //   lunchRecipes = recipeDetails.filter((recipe) =>
-        //     recipe.categories.includes("Lunch")
-        //   );
-        //   dinnerRecipes = recipeDetails.filter((recipe) =>
-        //     recipe.categories.includes("Dinner")
-        //   );
-        // }
 
         console.log("breakfastRecipes", breakfastRecipes.length);
         console.log("lunchRecipes", lunchRecipes.length);
@@ -503,17 +447,30 @@ export default function List3({ navigation }) {
   const firstUpdate = useRef(true);
 
   useEffect(() => {
-    const fetchRecipeData = async () => {
+    const fRD = async () => {
       console.log("~fetchRecipeData");
-      const documentDirectory = FileSystem.documentDirectory + "data.json";
+      const docDir = FileSystem.documentDirectory + "data.json";
       try {
-        const fileInfo = await FileSystem.getInfoAsync(documentDirectory);
+        const fileInfo = await FileSystem.getInfoAsync(docDir);
         if (fileInfo.exists) {
-          const jsonContent = await FileSystem.readAsStringAsync(
-            documentDirectory
-          );
-          const parsedData = JSON.parse(jsonContent);
-          recipeDetails.push(parsedData);
+          const jsonContent = await FileSystem.readAsStringAsync(docDir);
+          if (jsonContent) {
+            const parsedData = await JSON.parse(jsonContent);
+            console.log("jsonContent:", jsonContent[0]);
+            console.log("parsedData:", parsedData[0]);
+            if (parsedData) {
+              if (parsedData.length > 0) {
+                console.log("longer");
+                recipeDetails.push(parsedData);
+              } else {
+                console.log("kosong");
+              }
+            } else {
+              console.log("parsedData Failed");
+            }
+          } else {
+            console.log("jsonContent Failed");
+          }
         } else {
           console.log("JSON file does not exist.");
           return null; // Return null if the file doesn't exist
@@ -521,6 +478,51 @@ export default function List3({ navigation }) {
       } catch (error) {
         console.error("Error reading JSON file:", error);
         return null; // Handle errors by returning null
+      }
+      console.log("hereeee");
+    };
+
+    const fetchRecipeData = async () => {
+      console.log("Fetching Recipe Data");
+      try {
+        console.log("AAA");
+        const docDir = FileSystem.documentDirectory + "data.json";
+        console.log("BBB");
+        const fileInfo = await FileSystem.getInfoAsync(docDir);
+        console.log("CCC");
+
+        if (!fileInfo.exists) {
+          console.error("JSON file does not exist.");
+          return null;
+        }
+
+        console.log("DDD");
+
+        const jsonContent = await FileSystem.readAsStringAsync(docDir);
+
+        console.log("EEE");
+
+        if (!jsonContent) {
+          console.log("JSON content is empty.");
+          return null;
+        }
+
+        console.log("FFF");
+
+        const parsedData = JSON.parse(jsonContent);
+
+        console.log("GGG");
+
+        if (Array.isArray(parsedData) && parsedData.length > 0) {
+          console.log("Data fetched successfully.");
+          return parsedData;
+        } else {
+          console.log("No valid data found.");
+          return null;
+        }
+      } catch (error) {
+        console.error("Error reading JSON file: ", error);
+        return null;
       }
     };
 
@@ -561,13 +563,26 @@ export default function List3({ navigation }) {
       });
     };
     if (userDetails.length != 0) {
-      console.log("userdetails changed");
-      console.log("UserDetails", userDetails);
+      // console.log("userdetails changed");
+      // console.log("UserDetails", userDetails);
       setData();
     }
 
-    fetchRecipeData();
-  }, [userDetails]); //userDetails
+    // fetchRecipeData()
+    //   .then((result) => {
+    //     recipeDetails.push(result);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Fail to save recipe details: ", error);
+    //   });
+  }, [userDetails, isFocused]); //userDetails
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setIsFocused(true);
+      return () => setIsFocused(false);
+    }, [])
+  );
 
   useEffect(() => {
     const user = FIREBASE_AUTH.currentUser;
@@ -597,8 +612,21 @@ export default function List3({ navigation }) {
       }
     };
 
-    getUser();
-  }, [count]); //count
+    const fetchData = async () => {
+      try {
+        const result = await FRD();
+        setRecipeDetails(result);
+
+        await getUser();
+      } catch (error) {
+        console.error("Failed to fetch recipe details: ", error);
+      }
+    };
+
+    fetchData();
+
+    // getUser();
+  }, [count, isFocused]); //count
 
   useEffect(() => {
     const checkMealPlan = () => {
@@ -617,7 +645,7 @@ export default function List3({ navigation }) {
       return;
     }
     checkMealPlan();
-  }, [mealPlanData]); //mealPlanData
+  }, [mealPlanData, isFocused]); //mealPlanData
 
   return (
     <View style={styles.container}>
@@ -1122,6 +1150,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     borderColor: Colors.grey,
     borderWidth: 0.2,
+    marginBottom: 20,
   },
   regeneratebtnTxt: {
     fontSize: 20,
