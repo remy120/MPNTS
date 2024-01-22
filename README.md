@@ -1,4 +1,4 @@
-OVERVIEW PORTFOLiO (Meal Planner and Nutrition Tracker)
+OVERVIEW PORTFOLIO (Meal Planner and Nutrition Tracker)
 
 
 1. Login
